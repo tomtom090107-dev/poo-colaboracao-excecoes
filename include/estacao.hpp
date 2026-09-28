@@ -64,8 +64,7 @@ inline double adquirir(const IFonteLeitura& fonte, bool disponivel,
                       bool calibrada, int& abertas) {
     Sessao sessao{abertas};
     if (!disponivel) throw FalhaLeitura("fonte indisponivel");
-    // ETAPA GUIADA: se disponivel, mas sem calibracao, lance FalhaCalibracao.
-    (void)calibrada;
+    if (!calibrada) throw FalhaCalibracao("fonte sem calibracao");
     return fonte.valor();
 }
 
@@ -84,8 +83,8 @@ inline ResultadoLeitura executarCiclo(const IFonteLeitura& fonte, bool disponive
                                      bool calibrada, int& abertas) {
     try {
         return {true, lerServico(fonte, disponivel, calibrada, abertas), ""};
-    // EXTENSAO: capture FalhaCalibracao antes de FalhaLeitura e devolva
-    // {false, 0, "calibracao"}. A classe-base ja captura a indisponibilidade.
+    } catch (const FalhaCalibracao&) {
+        return {false, 0, "calibracao"};
     } catch (const FalhaLeitura&) {
         return {false, 0, "indisponivel"};
     }
