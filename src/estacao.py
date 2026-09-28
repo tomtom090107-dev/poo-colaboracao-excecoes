@@ -73,8 +73,8 @@ def adquirir(fonte, disponivel, calibrada, sessao):
     try:
         if not disponivel:
             raise FalhaLeitura("fonte indisponivel")
-        # ETAPA GUIADA: se disponivel, mas sem calibracao, lance FalhaCalibracao.
-        _ = calibrada
+        if not calibrada:
+            raise FalhaCalibracao("fonte sem calibracao")
         return fonte.valor()
     finally:
         sessao.fechar()
@@ -87,7 +87,7 @@ def ler_servico(fonte, disponivel, calibrada, sessao):
 def executar_ciclo(fonte, disponivel, calibrada, sessao):
     try:
         return True, ler_servico(fonte, disponivel, calibrada, sessao), ""
-    # EXTENSAO: capture FalhaCalibracao antes de FalhaLeitura e devolva
-    # False, 0, "calibracao". A classe-base ja captura a indisponibilidade.
+    except FalhaCalibracao:
+        return False, 0, "calibracao"
     except FalhaLeitura:
         return False, 0, "indisponivel"
